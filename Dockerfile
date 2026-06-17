@@ -7,8 +7,8 @@ RUN apk add --no-cache unzip ca-certificates
 ADD https://github.com/pocketbase/pocketbase/releases/download/v${PB_VERSION}/pocketbase_${PB_VERSION}_linux_amd64.zip /tmp/pb.zip
 RUN unzip /tmp/pb.zip -d /pb/
 
-# Crear la carpeta de datos por defecto
-RUN mkdir -p /pb/pb_data
+# Crear la carpeta de datos por defecto y asegurar permisos
+RUN mkdir -p /pb/pb_data && chmod -R 777 /pb
 
 EXPOSE 8080
 
