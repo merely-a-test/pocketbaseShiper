@@ -1,0 +1,50 @@
+¡Entendido! Con la aclaración de que te refieres a [Shiper.app](https://shiper.app/) (la plataforma de despliegue con soporte nativo para Docker e integración con GitHub), la situación cambia por completo: sí puedes correr PocketBase en ella.
+Dado que su lema es "Si corre en Docker, corre en Shiper", puedes empaquetar PocketBase usando un Dockerfile y desplegarlo en su plan Hobby gratuito ($0/mes).
+Para lograrlo con éxito sin perder tu base de datos cada vez que actualices el código, sigue este tutorial paso a paso utilizando la función Self-Hosting o los recursos de la plataforma:
+------------------------------
+## 📦 1. Estructura de archivos en tu repositorio de GitHub
+Crea un repositorio en tu cuenta de GitHub con la siguiente estructura básica:
+
+mi-proyecto-pocketbase/
+├── pb_public/
+│   └── index.html  (Opcional: aquí va tu frontend estático si deseas servirlo con PocketBase)
+└── Dockerfile
+
+## 🐳 2. Configura el Dockerfile
+Abre el archivo Dockerfile y pega el código necesario para compilar PocketBase de manera limpia. Usaremos una versión optimizada que se adapta a las variables de puerto de plataformas en la nube: [1] 
+
+FROM alpine:latest
+ARG PB_VERSION=0.22.23RUN apk add --no-cache unzip ca-certificates
+# Descargar e instalar PocketBaseADD https://github.com{PB_VERSION}/pocketbase_${PB_VERSION}_linux_amd64.zip /tmp/pb.zipRUN unzip /tmp/pb.zip -d /pb/
+# Crear la carpeta de datos por defectoRUN mkdir -p /pb/pb_data
+EXPOSE 8080
+# Iniciar PocketBase enlazando el puerto expuestoCMD ["/pb/pocketbase", "serve", "--http=0.0.0.0:8080"]
+
+------------------------------
+## ⚠️ El gran reto: La Persistencia de Datos (pb_data)
+PocketBase almacena toda tu configuración, usuarios y tablas en una base de datos local SQLite dentro de la carpeta /pb/pb_data. [1, 2] 
+En la infraestructura de nube tradicional de Shiper, los contenedores suelen ser efímeros (si el contenedor se reinicia por una nueva actualización, los datos guardados dentro de él se borran). Para evitar esto en Shiper tienes dos caminos: [3] 
+## Opción A: Usar una instancia "Self-Hosted" conectada (Recomendado y Gratis)
+El plan Hobby de Shiper incluye la capacidad de conectar 1 instancia propia (Self-Hosted) de forma gratuita.
+
+   1. Si tienes un VPS propio (por ejemplo, uno económico en Hetzner o cualquier otro proveedor), puedes conectarlo a Shiper con un solo comando.
+   2. Al desplegar mediante la opción de "Self-Hosted" en Shiper, puedes mapear una carpeta física de tu propio servidor hacia el contenedor (un volumen de Docker clásico). De esta manera, el ciclo de vida del contenedor se gestiona vía Shiper, pero los archivos de PocketBase se quedan seguros en tu máquina física. [4] 
+
+## Opción B: Sincronizar datos con Litestream u Object Storage
+Si usas la infraestructura por defecto que te asigna Shiper en su nube y no quieres conectar tu propio servidor, añade una herramienta como Litestream o configura PocketBase para que guarde los archivos multimedia en un almacenamiento externo compatible con S3 (como Cloudflare R2 o AWS S3, configurables directamente desde el panel de administración de PocketBase).
+------------------------------
+## 🚀 3. Pasos para desplegar en el Dashboard de Shiper
+
+   1. Entra a tu cuenta en Shiper.app y haz clic en Deploy for free o ve directamente a tu Dashboard.
+   2. Conecta tu cuenta de GitHub y selecciona el repositorio de PocketBase que acabas de crear.
+   3. La plataforma detectará automáticamente tu Dockerfile.
+   4. Si la plataforma te solicita mapear puertos, asegúrate de que el tráfico externo apunte al puerto interno 8080.
+   5. Haz clic en Deploy. La plataforma generará automáticamente un certificado SSL incluido para tu subdominio de Shiper y compilará la aplicación. [1] 
+
+Una vez finalizado el proceso de compilación, dirígete a https://shiper.app para crear tu usuario administrador y empezar a usar PocketBase. [1, 2] 
+¿Planeas utilizar un servidor propio conectado a Shiper (Self-Hosted) o prefieres intentar el despliegue directo en sus servidores por defecto? Dime cuál prefieres para explicarte detalladamente cómo asegurar la base de datos en ese escenario.
+
+[1] [https://railway.com](https://railway.com/deploy/pocketbase-1)
+[2] [https://pocketbase.io](https://pocketbase.io/docs/)
+[3] [https://www.youtube.com](https://www.youtube.com/watch?v=0swOh5C3OVM)
+[4] [https://caprover.com](https://caprover.com/docs/persistent-apps.html)

@@ -1,0 +1,6 @@
+# PocketBase local data directory
+pb_data/
+
+# OS files
+.DS_Store
+Thumbs.db
