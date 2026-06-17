@@ -30,5 +30,5 @@ RUN mkdir -p /app/pb_data && chmod -R 777 /pb && chmod -R 777 /app
 
 EXPOSE 8080
 
-# Iniciar PocketBase enlazando al puerto dinámico y especificando directorios
-CMD ["sh", "-c", "/pb/pocketbase serve --http=0.0.0.0:${PORT:-8080} --dir=/app/pb_data --publicDir=/app/pb_public"]
+# Iniciar PocketBase enlazando a la dirección y puertos fijos para evitar conflictos de mapeo y permitir salida de logs directa
+CMD ["/pb/pocketbase", "serve", "--http=0.0.0.0:8080", "--dir=/app/pb_data", "--publicDir=/app/pb_public"]
