@@ -12,5 +12,5 @@ RUN mkdir -p /pb/pb_data
 
 EXPOSE 8080
 
-# Iniciar PocketBase enlazando el puerto expuesto
-CMD ["/pb/pocketbase", "serve", "--http=0.0.0.0:8080"]
+# Iniciar PocketBase enlazando al puerto dinámico (si Shiper lo provee, de lo contrario por defecto 8080)
+CMD ["sh", "-c", "/pb/pocketbase serve --http=0.0.0.0:${PORT:-8080}"]
