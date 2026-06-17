@@ -28,7 +28,7 @@ COPY . /app
 # Crear y asegurar permisos para la carpeta de datos y la app
 RUN mkdir -p /app/pb_data && chmod -R 777 /pb && chmod -R 777 /app
 
-EXPOSE 8080
+EXPOSE 3000
 
 # Iniciar PocketBase enlazando a la dirección y puertos fijos para evitar conflictos de mapeo y permitir salida de logs directa
-CMD ["/pb/pocketbase", "serve", "--http=0.0.0.0:8080", "--dir=/app/pb_data", "--publicDir=/app/pb_public"]
+CMD ["/pb/pocketbase", "serve", "--http=0.0.0.0:3000", "--dir=/app/pb_data", "--publicDir=/app/pb_public"]
