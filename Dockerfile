@@ -19,10 +19,16 @@ RUN ARCH=$(uname -m) && \
     unzip /tmp/pb.zip -d /pb/ && \
     rm /tmp/pb.zip
 
-# Crear la carpeta de datos por defecto y asegurar permisos
-RUN mkdir -p /pb/pb_data && chmod -R 777 /pb
+# Definir el directorio de trabajo
+WORKDIR /app
+
+# Copiar el código del repositorio (incluyendo pb_public) al contenedor
+COPY . /app
+
+# Crear y asegurar permisos para la carpeta de datos y la app
+RUN mkdir -p /app/pb_data && chmod -R 777 /pb && chmod -R 777 /app
 
 EXPOSE 8080
 
-# Iniciar PocketBase enlazando al puerto dinámico (si Shiper lo provee, de lo contrario por defecto 8080)
-CMD ["sh", "-c", "/pb/pocketbase serve --http=0.0.0.0:${PORT:-8080}"]
+# Iniciar PocketBase enlazando al puerto dinámico y especificando directorios
+CMD ["sh", "-c", "/pb/pocketbase serve --http=0.0.0.0:${PORT:-8080} --dir=/app/pb_data --publicDir=/app/pb_public"]
